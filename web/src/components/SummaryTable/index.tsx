@@ -26,7 +26,7 @@ const SummaryTable: React.FC = () => {
 
 			<div className="grid grid-rows-7 grid-flow-col gap-3">
 				{summaryDates.map((date) => {
-					return <HabitDay key={date.toString()} />
+					return <HabitDay completed={20} amount={60} key={date.toString()} />
 				})}
 
 				{amountOfDaysToFill > 0 &&
