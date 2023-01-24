@@ -1,4 +1,6 @@
-import React from "react"
+import dayjs from "dayjs"
+import React, { useEffect, useState } from "react"
+import { api } from "../../lib/axios"
 import { generateDatesFromYearBeginning } from "../../utils/generate-dates-from-year-beginning"
 import HabitDay from "../HabitDay"
 
@@ -8,7 +10,22 @@ const summaryDates = generateDatesFromYearBeginning()
 const minimumSummaryDatesSize = 18 * 7
 const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length
 
+type Summary = Array<{
+	id: string
+	date: string
+	amount: number
+	completed: number
+}>
+
 const SummaryTable: React.FC = () => {
+	const [summary, setSummary] = useState<Summary>([])
+
+	useEffect(() => {
+		api.get("summary").then((response) => {
+			setSummary(response.data)
+		})
+	}, [])
+
 	return (
 		<main className="w-full flex">
 			<div className="grid grid-rows-7 grid-flow-row gap-3">
@@ -25,9 +42,21 @@ const SummaryTable: React.FC = () => {
 			</div>
 
 			<div className="grid grid-rows-7 grid-flow-col gap-3">
-				{summaryDates.map((date) => {
-					return <HabitDay completed={20} amount={60} key={date.toString()} />
-				})}
+				{summary.length > 0 &&
+					summaryDates.map((date) => {
+						const dayInSummary = summary.find((day) => {
+							return dayjs(date).isSame(day.date, "day")
+						})
+
+						return (
+							<HabitDay
+								completed={dayInSummary?.completed}
+								amount={dayInSummary?.amount}
+								date={date}
+								key={date.toString()}
+							/>
+						)
+					})}
 
 				{amountOfDaysToFill > 0 &&
 					Array.from({ length: amountOfDaysToFill }).map((_, i) => {
